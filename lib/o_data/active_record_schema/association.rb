@@ -22,7 +22,7 @@ module OData
             reflection.class_name.constantize
         rescue => ex
           begin
-            reflection.options[:anonymous_class].name.constantize
+            reflection.options[:anonymous_class].name.constantize if reflection.options[:anonymous_class]
           rescue => exc
             raise "Failed to handle class <#{reflection.active_record}> #{reflection.macro} #{reflection.name}"
           end
@@ -46,7 +46,7 @@ module OData
           begin
             out << reflection.class_name.constantize.primary_key
           rescue NameError
-            out << reflection.options[:anonymous_class].primary_key
+            out << reflection.options[:anonymous_class].primary_key if reflection.options[:anonymous_class]
           end
           out << reflection.options[:foreign_type] if reflection.options[:polymorphic]
         else
@@ -69,7 +69,7 @@ module OData
             begin
               out << EntityType.primary_key_for(reflection.class_name.constantize)
             rescue NameError
-              out << reflection.options[:anonymous_class].primary_key
+              out << reflection.options[:anonymous_class].primary_key if reflection.options[:anonymous_class]
             end
           end
         else
