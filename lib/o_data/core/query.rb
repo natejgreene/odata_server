@@ -72,7 +72,7 @@ module OData
       def _execute!
         _segments = [@segments].flatten.compact
         results = __execute!([], nil, _segments.shift, _segments)
-        results = with_filter_options(results)
+        results = with_skip_and_top_options(with_filter_options(results))
         results.respond_to?(:all) ? results.all : results
       end
 
@@ -115,16 +115,9 @@ module OData
 
         skip = skip_option.blank? ? nil : skip_option.value.to_i
         top = top_option.blank? ? nil : top_option.value.to_i
-
-        if skip && top
-          results = results.slice(skip, top)
-        elsif skip
-          results = results.slice(skip..-1)
-        elsif top
-          results = results.slice(0, top)
-        else
-          results
-        end
+        results = results.limit(top) if top
+        results = results.offset(skip) if skip
+        results
       end
     end
   end
