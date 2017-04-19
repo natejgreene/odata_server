@@ -11,23 +11,23 @@ xml.edmx(:Edmx, :Version => "1.0", "xmlns:edmx" => "http://schemas.microsoft.com
 	              xml.tag!(:PropertyRef, :Name => entity_type.key_property.name)
 	            end
 	          end
-	          
+
 	          entity_type.properties.each do |property|
 	            property_attrs = { :Name => property.name, :Type => property.return_type, :Nullable => property.nullable? }
-	
+
 	            property_attrs.merge!("m:FC_TargetPath" => "SyndicationTitle", "m:FC_ContentKind" => "text", "m:FC_KeepInContent" => "true") if property == entity_type.atom_title_property
 	            property_attrs.merge!("m:FC_TargetPath" => "SyndicationSummary", "m:FC_ContentKind" => "text", "m:FC_KeepInContent" => "false") if property == entity_type.atom_summary_property
 	            property_attrs.merge!("m:FC_TargetPath" => "SyndicationUpdated", "m:FC_ContentKind" => "text", "m:FC_KeepInContent" => "true") if property == entity_type.atom_updated_at_property
-	            
+
 	            xml.tag!(:Property, property_attrs)
 	          end
-	          
+
 	          entity_type.navigation_properties.sort_by(&:qualified_name).each do |navigation_property|
 	            xml.tag!(:NavigationProperty, :Name => navigation_property.name, :Relationship => navigation_property.association.qualified_name.gsub('#', '_'), :FromRole => navigation_property.from_end.name, :ToRole => navigation_property.to_end.name)
 	          end
 	        end
 	      end
-	      
+
 	      schema.associations.sort_by(&:qualified_name).each do |association|
           next if association.name.include?('HABTM')
 	        xml.tag!(:Association, :Name => association.name.gsub('#', '_')) do
@@ -47,18 +47,18 @@ xml.edmx(:Edmx, :Version => "1.0", "xmlns:edmx" => "http://schemas.microsoft.com
 	          end
 	        end
 	      end
-	      
+
 	      xml.tag!(:EntityContainer, :Name => schema.namespace, "m:IsDefaultEntityContainer" => true) do
 	        schema.entity_types.sort_by(&:qualified_name).each do |entity_type|
             next if entity_type.plural_name.include?('HABTM')
 	          xml.tag!(:EntitySet, :Name => entity_type.plural_name, :EntityType => entity_type.qualified_name)
 	        end
-	        
+
 	        schema.associations.sort_by(&:qualified_name).each do |association|
             next if association.name.include?('HABTM')
 	          xml.tag!(:AssociationSet, :Name => association.name.gsub('#', '_'), :Association => association.qualified_name.gsub('#', '_')) do
 	            xml.tag!(:End, :EntitySet => association.from_end.entity_type.plural_name, :Role => association.from_end.name)
-	            xml.tag!(:End, :EntitySet => association.reflection.options[:polymorphic] ? association.to_end.return_type : association.to_end.entity_type.plural_name, :Role => association.to_end.name)
+	            xml.tag!(:End, :EntitySet => association.reflection.options[:polymorphic] ? association.to_end.return_type : association.to_end.entity_type.plural_name, :Role => association.to_end.name) unless association.to_end
 	          end
 	        end
 	      end
