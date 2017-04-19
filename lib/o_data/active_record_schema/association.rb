@@ -73,10 +73,14 @@ module OData
             end
           end
         else
-          out << reflection.class_name.constantize.primary_key
+          begin
+            out << reflection.class_name.constantize.primary_key
 
-          if reflection.options[:as]
-            out << reflection.options[:as].to_s + '_type'
+            if reflection.options[:as]
+              out << reflection.options[:as].to_s + '_type'
+            end
+          rescue NameError
+              out << reflection.options[:anonymous_class].primary_key if reflection.options[:anonymous_class]
           end
         end
 
