@@ -1,5 +1,5 @@
 xml.instruct!
-xml.edmx(:Edmx, :Version => "1.0", "xmlns:edmx" => "http://schemas.microsoft.com/ado/2007/06/edmx", "xml:base" => o_data_engine.metadata_url, "xml:id" => "") do
+xml.edmx(:Edmx, :Version => "1.0", "xmlns:edmx" => "http://schemas.microsoft.com/ado/2007/06/edmx") do
   xml.edmx(:DataServices, "m:DataServiceVersion" => "2.0", "xmlns:m" => "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata") do
   	ODataController.data_services.schemas.each do |schema|
 	    xml.tag!(:Schema, :Namespace => schema.namespace, "xmlns:d" => "http://schemas.microsoft.com/ado/2007/08/dataservices", "xmlns" => "http://schemas.microsoft.com/ado/2007/05/edm", "xml:id" => "Schema") do
@@ -54,13 +54,14 @@ xml.edmx(:Edmx, :Version => "1.0", "xmlns:edmx" => "http://schemas.microsoft.com
 	          xml.tag!(:EntitySet, :Name => entity_type.plural_name, :EntityType => entity_type.qualified_name)
 	        end
 
-	        schema.associations.sort_by(&:qualified_name).each do |association|
-            next if association.name.include?('HABTM')
-	          xml.tag!(:AssociationSet, :Name => association.name.gsub('#', '_'), :Association => association.qualified_name.gsub('#', '_')) do
-	            xml.tag!(:End, :EntitySet => association.from_end.entity_type.plural_name, :Role => association.from_end.name)
-	            xml.tag!(:End, :EntitySet => association.reflection.options[:polymorphic] ? association.to_end.return_type : association.to_end.entity_type.plural_name, :Role => association.to_end.name) unless association.to_end
-	          end
-	        end
+#	        schema.associations.sort_by(&:qualified_name).each do |association|
+#            next if association.name.include?('HABTM')
+#	          xml.tag!(:AssociationSet, :Name => association.name.gsub('#', '_'), :Association => association.qualified_name.gsub('#', '_')) do
+#	            xml.tag!(:End, :EntitySet => association.from_end.entity_type.plural_name, :Role => association.from_end.name)
+#	            xml.tag!(:End, :EntitySet => association.reflection.options[:polymorphic] ? association.to_end.return_type : association.to_end.entity_type.plural_name, :Role => association.to_end.name) unless association.to_end
+#	          end
+#
+#	        end
 	      end
 	    end
 	  end
